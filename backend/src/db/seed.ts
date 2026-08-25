@@ -6,25 +6,57 @@ import { prisma } from "./client";
 
 const GRADIENT_COLOR_PAIRS: [string, string][] = [
   ["#ffb6c1", "#ff8fa3"],
-  ["#a0e7e5", "#54c1c4"],
-  ["#ffe0b2", "#ffb74d"],
-  ["#c5cae9", "#7986cb"],
-  ["#d0f0c0", "#81c784"],
+  ["#ffc2d1", "#ff85a2"],
+  ["#ffd6e8", "#ff9ebb"],
   ["#f8bbd0", "#ce93d8"],
+  ["#ffb3c6", "#fb6f92"],
+  ["#ffcad4", "#f4978e"],
+  ["#ff8fab", "#ff477e"],
+  ["#ffe0ec", "#ffa6c1"],
+  ["#ffb5c5", "#ff6f9c"],
+  ["#f7cad0", "#f9a1bc"],
+  ["#ffd1dc", "#ff8fa3"],
+  ["#fbb1bd", "#f45b69"],
 ];
 
-async function generateGradientPng(colorStart: string, colorEnd: string): Promise<Buffer> {
+function backgroundTint(colorEnd: string): string {
+  return `${colorEnd}22`;
+}
+
+// Renders a soft stylized foot-sole silhouette (sole + five toes) in a
+// pink gradient, not a real photo — used only as public-rating placeholder
+// content until real published analyses fill the pool.
+async function generateFootPlaceholder(colorStart: string, colorEnd: string): Promise<Buffer> {
   const width = 600;
   const height = 800;
+  const gradId = `g${Math.round(Math.random() * 1e6)}`;
+  const cx = width / 2;
+
+  const toeRadii = [34, 40, 37, 32, 26];
+  const toeYs = [150, 130, 138, 152, 172];
+  const toeSpacing = 62;
+  const toeStartX = cx - (toeSpacing * (toeRadii.length - 1)) / 2;
+
+  const toes = toeRadii
+    .map((r, i) => {
+      const x = toeStartX + i * toeSpacing;
+      const y = toeYs[i];
+      return `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#${gradId})" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2" />`;
+    })
+    .join("");
+
   const svg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="${colorStart}" />
           <stop offset="100%" stop-color="${colorEnd}" />
         </linearGradient>
       </defs>
-      <rect width="100%" height="100%" fill="url(#g)" />
+      <rect width="100%" height="100%" fill="${backgroundTint(colorEnd)}" />
+      <ellipse cx="${cx}" cy="480" rx="150" ry="260" fill="url(#${gradId})" stroke="#ffffff" stroke-opacity="0.5" stroke-width="3" />
+      ${toes}
+      <ellipse cx="${cx - 50}" cy="380" rx="34" ry="46" fill="#ffffff" opacity="0.25" />
     </svg>
   `;
   return sharp(Buffer.from(svg)).png().toBuffer();
@@ -36,7 +68,7 @@ async function main() {
   await mkdir(publicDir, { recursive: true });
 
   const voters = await Promise.all(
-    Array.from({ length: 4 }).map((_, i) =>
+    Array.from({ length: 8 }).map((_, i) =>
       prisma.user.upsert({
         where: { telegramId: `seed-voter-${i}` },
         update: {},
@@ -47,7 +79,7 @@ async function main() {
 
   for (let i = 0; i < GRADIENT_COLOR_PAIRS.length; i++) {
     const [start, end] = GRADIENT_COLOR_PAIRS[i];
-    const buffer = await generateGradientPng(start, end);
+    const buffer = await generateFootPlaceholder(start, end);
 
     const publicId = randomUUID();
     const fileName = `${publicId}.png`;
