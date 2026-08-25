@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: feetrate
+      POSTGRES_PASSWORD: feetrate
+      POSTGRES_DB: feetrate
+    volumes:
+      - feetrate_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U feetrate -d feetrate"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    ports:
+      - "127.0.0.1:${FEETRATE_DB_PORT:-5433}:5432"
+    networks:
+      - feetrate_net
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://feetrate:feetrate@db:5432/feetrate
+    volumes:
+      - feetrate_uploads:/app/uploads
+    ports:
+      - "127.0.0.1:${FEETRATE_API_PORT:-8081}:8080"
+    networks:
+      - feetrate_net
+
+  web:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:${FEETRATE_WEB_PORT:-8090}:80"
+    networks:
+      - feetrate_net
+
+networks:
+  feetrate_net:
+    driver: bridge
+
+volumes:
+  feetrate_pgdata:
+    driver: local
+  feetrate_uploads:
+    driver: local

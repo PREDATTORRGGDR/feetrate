@@ -1,0 +1,4 @@
+feetrate.144-31-166-57.sslip.io {
+    encode gzip zstd
+    reverse_proxy feetrate-web-1:80
+}

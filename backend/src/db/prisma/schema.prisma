@@ -1,0 +1,63 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  telegramId String   @unique
+  createdAt  DateTime @default(now())
+
+  analyses     Analysis[]
+  votes        Vote[]
+
+  @@map("users")
+}
+
+model Analysis {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id])
+  smoothness         Int
+  hydration          Int
+  pinkness           Int
+  overallAppearance  Int
+  score              Int
+  photoPath          String
+  createdAt          DateTime @default(now())
+
+  publicPhotos PublicPhoto[]
+
+  @@index([userId])
+  @@map("analyses")
+}
+
+model PublicPhoto {
+  id         String    @id @default(uuid())
+  analysisId String?
+  analysis   Analysis? @relation(fields: [analysisId], references: [id])
+  imagePath  String
+  createdAt  DateTime  @default(now())
+
+  votes Vote[]
+
+  @@map("public_photos")
+}
+
+model Vote {
+  id            String      @id @default(uuid())
+  publicPhotoId String
+  publicPhoto   PublicPhoto @relation(fields: [publicPhotoId], references: [id])
+  voterUserId   String
+  voter         User        @relation(fields: [voterUserId], references: [id])
+  score         Int
+  createdAt     DateTime    @default(now())
+
+  @@unique([publicPhotoId, voterUserId])
+  @@map("votes")
+}

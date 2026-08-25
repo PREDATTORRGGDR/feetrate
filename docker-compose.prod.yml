@@ -1,0 +1,9 @@
+services:
+  web:
+    networks:
+      - feetrate_net
+      - looksmaxbot_appnet
+
+networks:
+  looksmaxbot_appnet:
+    external: true

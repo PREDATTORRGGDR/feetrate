@@ -1,0 +1,54 @@
+:root {
+  /* Palette */
+  --color-primary: #ff4470;
+  --color-primary-alt: #ff5c8a;
+  --color-primary-dark: #e02f5c;
+  --color-accent-purple: #b96bff;
+  --color-surface-tint: #ffe6ee;
+  --color-surface-tint-strong: #ffd2e2;
+  --color-white: #ffffff;
+  --color-bg: #fff5f8;
+  --color-text: #1f1620;
+  --color-text-secondary: #8b8190;
+  --color-border: #f5dde6;
+  --color-ring-track: #ffe1ea;
+  --color-danger: #d64545;
+  --color-danger-bg: #fdeaea;
+  --color-success: #1f9d63;
+  --color-success-bg: #e8f8ef;
+
+  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent-purple) 100%);
+  --gradient-hero: linear-gradient(160deg, #fff0f4 0%, #ffe3ee 60%, #ffd8e8 100%);
+
+  /* Radii */
+  --radius-card: 22px;
+  --radius-btn: 14px;
+  --radius-input: 14px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-soft: 0 10px 30px rgba(255, 68, 112, 0.12);
+  --shadow-card: 0 6px 20px rgba(31, 22, 32, 0.06);
+  --shadow-modal: 0 20px 50px rgba(31, 22, 32, 0.22);
+
+  /* Spacing */
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Motion */
+  --transition-fast: 180ms ease;
+  --transition-base: 220ms ease;
+  --transition-slow: 320ms ease;
+
+  /* Type */
+  --font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Inter, sans-serif;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
