@@ -341,12 +341,8 @@ p {
 }
 
 .loading-spinner__ring {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 5px solid var(--color-surface-tint);
-  border-top-color: var(--color-primary);
-  animation: spin 900ms linear infinite;
+  animation: spin 1100ms linear infinite;
+  transform-origin: 50% 50%;
 }
 
 @keyframes spin {
