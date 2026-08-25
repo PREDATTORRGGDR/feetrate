@@ -48,13 +48,14 @@ export default async function ratingRoutes(app: FastifyInstance) {
   });
 
   app.get<{ Querystring: { limit?: string } }>("/api/rating/feed", async (request) => {
-    await resolveUser(request);
+    const user = await resolveUser(request);
     const limit = Math.min(Math.max(Number(request.query.limit) || 1, 1), 20);
 
-    // Everyone rates everyone: the pool is shared and never excludes photos
-    // the caller already voted on (re-voting just updates their own score,
-    // enforced by the unique constraint), so the feed never runs dry.
+    // One pass through the shared pool: each photo shows once per user, in
+    // random order, then the feed is genuinely empty until someone publishes
+    // a new photo — the frontend shows "закончились" instead of looping.
     const pool = await prisma.publicPhoto.findMany({
+      where: { votes: { none: { voterUserId: user.id } } },
       include: { votes: { select: { score: true } } },
     });
 
