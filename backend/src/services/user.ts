@@ -1,6 +1,7 @@
 import type { FastifyRequest } from "fastify";
 import { prisma } from "../db/client";
 import { notifyAdmin } from "./adminAlerts";
+import { requireSubscription } from "./subscriptionGate";
 import type { ResolvedUser } from "../types";
 
 const DEV_FALLBACK_USER_ID = "dev-user";
@@ -43,6 +44,8 @@ function resolveTelegramKey(request: FastifyRequest): string {
 
 export async function resolveUser(request: FastifyRequest): Promise<ResolvedUser> {
   const telegramKey = resolveTelegramKey(request);
+
+  await requireSubscription(telegramKey);
 
   const existing = await prisma.user.findUnique({ where: { telegramId: telegramKey } });
   if (existing) {

@@ -8,6 +8,7 @@ import type {
   RatingTopResponse,
   RatingVoteResponse,
 } from "../types";
+import { getInitData } from "./telegram";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -36,9 +37,15 @@ async function parseErrorBody(response: Response): Promise<{ message: string; co
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const initData = getInitData();
+  const headers = new Headers(init?.headers);
+  if (initData) {
+    headers.set("X-Telegram-Init-Data", initData);
+  }
+
   let response: Response;
   try {
-    response = await fetch(`${BASE_URL}${path}`, init);
+    response = await fetch(`${BASE_URL}${path}`, { ...init, headers });
   } catch {
     throw new ApiError("Нет соединения с сервером.", 0);
   }

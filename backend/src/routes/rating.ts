@@ -12,6 +12,7 @@ function toImageUrl(imagePath: string): string {
 
 export default async function ratingRoutes(app: FastifyInstance) {
   app.post<{ Body: { analysisId?: string } }>("/api/rating/submit", async (request, reply) => {
+    await resolveUser(request);
     const { analysisId } = request.body ?? {};
     if (!analysisId) {
       return reply.code(400).send({ error: "invalid_request", message: "analysisId обязателен" });
@@ -50,6 +51,7 @@ export default async function ratingRoutes(app: FastifyInstance) {
   });
 
   app.get<{ Querystring: { limit?: string } }>("/api/rating/feed", async (request) => {
+    await resolveUser(request);
     const limit = Math.min(Math.max(Number(request.query.limit) || 1, 1), 20);
 
     // Everyone rates everyone: the pool is shared and never excludes photos
@@ -80,6 +82,7 @@ export default async function ratingRoutes(app: FastifyInstance) {
   });
 
   app.get<{ Querystring: { limit?: string } }>("/api/rating/top", async (request) => {
+    await resolveUser(request);
     const limit = Math.min(Math.max(Number(request.query.limit) || 20, 1), 50);
 
     const photos = await prisma.publicPhoto.findMany({

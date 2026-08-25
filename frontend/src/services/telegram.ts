@@ -6,6 +6,8 @@ interface TelegramWebApp {
   viewportHeight: number;
   setHeaderColor?: (color: string) => void;
   setBackgroundColor?: (color: string) => void;
+  openTelegramLink?: (url: string) => void;
+  openLink?: (url: string) => void;
   BackButton?: {
     show: () => void;
     hide: () => void;
@@ -53,4 +55,17 @@ export function hapticImpact(style: "light" | "medium" | "heavy" = "light"): voi
 
 export function hapticNotification(type: "error" | "success" | "warning"): void {
   getWebApp()?.HapticFeedback?.notificationOccurred(type);
+}
+
+export function openExternalLink(url: string): void {
+  const webApp = getWebApp();
+  if (webApp?.openTelegramLink && url.startsWith("https://t.me/")) {
+    webApp.openTelegramLink(url);
+    return;
+  }
+  if (webApp?.openLink) {
+    webApp.openLink(url);
+    return;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
 }

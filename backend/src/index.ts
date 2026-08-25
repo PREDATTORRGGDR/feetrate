@@ -18,6 +18,7 @@ import ratingRoutes from "./routes/rating";
 import guidesRoutes from "./routes/guides";
 import profileRoutes from "./routes/profile";
 import { startTelegramBot } from "./services/telegramBot";
+import { SubscriptionRequiredError, requiredChannelUrl } from "./services/subscriptionGate";
 
 async function main() {
   const app = Fastify({ logger: true });
@@ -38,6 +39,18 @@ async function main() {
   await app.register(fastifyStatic, {
     root: uploadsDir,
     prefix: "/uploads/",
+  });
+
+  app.setErrorHandler((err, _request, reply) => {
+    if (err instanceof SubscriptionRequiredError) {
+      return reply.code(403).send({
+        error: "subscription_required",
+        message: "Чтобы пользоваться Feetrate, нужна подписка на Telegram-канал.",
+        channelUrl: requiredChannelUrl(),
+      });
+    }
+    app.log.error(err);
+    return reply.code(500).send({ error: "internal_error", message: "Внутренняя ошибка сервера" });
   });
 
   await app.register(healthRoutes);
