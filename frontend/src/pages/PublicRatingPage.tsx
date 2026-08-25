@@ -66,7 +66,10 @@ export default function PublicRatingPage() {
         </div>
       ) : exhausted || !photo ? (
         <div className="screen--centered">
-          <p className="state-message state-message--muted">Новых фото пока нет. Загляни позже.</p>
+          <p className="state-message state-message--muted">
+            Пока никто не опубликовал фото в общий рейтинг. Сделай анализ и стань первым —
+            загляни во вкладку «Главная».
+          </p>
         </div>
       ) : (
         <>
