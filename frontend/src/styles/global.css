@@ -648,18 +648,18 @@ p {
 .rating-page__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 4px;
+  gap: 6px;
+  padding: 3px;
   background: var(--color-surface-tint);
   border-radius: var(--radius-pill);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .rating-page__tab {
-  min-height: 40px;
+  min-height: 30px;
   border-radius: var(--radius-pill);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12.5px;
   color: var(--color-text-secondary);
   transition: background var(--transition-fast), color var(--transition-fast);
 }
