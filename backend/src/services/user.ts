@@ -1,5 +1,6 @@
 import type { FastifyRequest } from "fastify";
 import { prisma } from "../db/client";
+import { notifyAdmin } from "./adminAlerts";
 import type { ResolvedUser } from "../types";
 
 const DEV_FALLBACK_USER_ID = "dev-user";
@@ -43,11 +44,18 @@ function resolveTelegramKey(request: FastifyRequest): string {
 export async function resolveUser(request: FastifyRequest): Promise<ResolvedUser> {
   const telegramKey = resolveTelegramKey(request);
 
-  const user = await prisma.user.upsert({
-    where: { telegramId: telegramKey },
-    update: {},
-    create: { telegramId: telegramKey },
-  });
+  const existing = await prisma.user.findUnique({ where: { telegramId: telegramKey } });
+  if (existing) {
+    return { id: existing.id, telegramId: existing.telegramId, isNew: false };
+  }
 
-  return { id: user.id, telegramId: user.telegramId };
+  try {
+    const user = await prisma.user.create({ data: { telegramId: telegramKey } });
+    notifyAdmin(`🆕 Новый пользователь Feetrate\nid: <code>${telegramKey}</code>`).catch(() => {});
+    return { id: user.id, telegramId: user.telegramId, isNew: true };
+  } catch {
+    // Lost a create race against a concurrent request for the same new user.
+    const user = await prisma.user.findUniqueOrThrow({ where: { telegramId: telegramKey } });
+    return { id: user.id, telegramId: user.telegramId, isNew: false };
+  }
 }

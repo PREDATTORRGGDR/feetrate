@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../db/client";
+import { notifyAdmin } from "../services/adminAlerts";
 import { analyzeFootPhoto } from "../services/geminiService";
 import { checkPhotoQuality } from "../services/photoQuality";
 import { computeFootScore } from "../services/scoring";
@@ -133,6 +134,10 @@ export default async function analyzeRoutes(app: FastifyInstance) {
         photoPath: relativePhotoPath,
       },
     });
+
+    notifyAdmin(
+      `📸 Новый анализ Feetrate\nПользователь: <code>${user.telegramId}</code>\nFoot Score: <b>${score}/100</b>`
+    ).catch(() => {});
 
     return {
       id: analysis.id,

@@ -32,4 +32,5 @@ export interface Guide {
 export interface ResolvedUser {
   id: string;
   telegramId: string;
+  isNew: boolean;
 }

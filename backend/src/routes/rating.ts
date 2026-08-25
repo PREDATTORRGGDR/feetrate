@@ -3,6 +3,7 @@ import { copyFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../db/client";
+import { notifyAdmin } from "../services/adminAlerts";
 import { resolveUser } from "../services/user";
 
 function toImageUrl(imagePath: string): string {
@@ -39,6 +40,11 @@ export default async function ratingRoutes(app: FastifyInstance) {
         imagePath: `public/${publicFileName}`,
       },
     });
+
+    const owner = await prisma.user.findUnique({ where: { id: analysis.userId } });
+    notifyAdmin(
+      `📢 Фото опубликовано в общий рейтинг\nПользователь: <code>${owner?.telegramId ?? "?"}</code>`
+    ).catch(() => {});
 
     return { publicId: publicPhoto.id, status: "published" };
   });
@@ -133,6 +139,10 @@ export default async function ratingRoutes(app: FastifyInstance) {
           score: Math.round(score),
         },
       });
+
+      notifyAdmin(
+        `⭐ Новая оценка в Feetrate\nПользователь: <code>${user.telegramId}</code>\nОценка: <b>${Math.round(score)}/10</b>`
+      ).catch(() => {});
 
       return { recorded: true };
     }
