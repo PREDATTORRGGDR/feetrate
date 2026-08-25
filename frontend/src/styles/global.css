@@ -217,7 +217,7 @@ p {
 /* Bottom nav */
 
 .bottom-nav {
-  position: sticky;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -226,6 +226,8 @@ p {
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--color-border);
   padding: 8px var(--space-sm) calc(8px + var(--safe-bottom));
+  padding-left: calc(var(--space-sm) + var(--safe-left));
+  padding-right: calc(var(--space-sm) + var(--safe-right));
   z-index: 10;
 }
 
