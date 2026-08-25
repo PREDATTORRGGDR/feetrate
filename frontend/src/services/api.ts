@@ -5,6 +5,7 @@ import type {
   Profile,
   RatingFeedResponse,
   RatingSubmitResponse,
+  RatingTopResponse,
   RatingVoteResponse,
 } from "../types";
 
@@ -73,6 +74,10 @@ export function submitToPublicRating(analysisId: string): Promise<RatingSubmitRe
 
 export function fetchRatingFeed(limit = 1): Promise<RatingFeedResponse> {
   return request<RatingFeedResponse>(`/rating/feed?limit=${limit}`);
+}
+
+export function fetchRatingTop(limit = 20): Promise<RatingTopResponse> {
+  return request<RatingTopResponse>(`/rating/top?limit=${limit}`);
 }
 
 export function voteOnRating(publicId: string, score: number): Promise<RatingVoteResponse> {

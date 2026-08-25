@@ -48,6 +48,10 @@ export interface RatingFeedResponse {
   photos: RatingFeedPhoto[];
 }
 
+export interface RatingTopResponse {
+  photos: RatingFeedPhoto[];
+}
+
 export interface RatingVoteResponse {
   recorded: true;
 }

@@ -73,6 +73,35 @@ export default async function ratingRoutes(app: FastifyInstance) {
     };
   });
 
+  app.get<{ Querystring: { limit?: string } }>("/api/rating/top", async (request) => {
+    const limit = Math.min(Math.max(Number(request.query.limit) || 20, 1), 50);
+
+    const photos = await prisma.publicPhoto.findMany({
+      include: { votes: { select: { score: true } } },
+    });
+
+    const ranked = photos
+      .map((photo) => {
+        const voteCount = photo.votes.length;
+        const averageScore =
+          voteCount >= 3
+            ? Math.round((photo.votes.reduce((sum, v) => sum + v.score, 0) / voteCount) * 10) / 10
+            : null;
+        return {
+          publicId: photo.id,
+          imageUrl: toImageUrl(photo.imagePath),
+          voteCount,
+          averageScore,
+        };
+      })
+      // Only photos with enough votes for a meaningful average make the leaderboard.
+      .filter((photo) => photo.averageScore !== null)
+      .sort((a, b) => (b.averageScore ?? 0) - (a.averageScore ?? 0))
+      .slice(0, limit);
+
+    return { photos: ranked };
+  });
+
   app.post<{ Body: { publicId?: string; score?: number } }>(
     "/api/rating/vote",
     async (request, reply) => {
