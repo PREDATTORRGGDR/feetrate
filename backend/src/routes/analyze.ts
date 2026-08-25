@@ -136,7 +136,7 @@ export default async function analyzeRoutes(app: FastifyInstance) {
     });
 
     notifyAdmin(
-      `📸 Новый анализ Feetrate\nПользователь: <code>${user.telegramId}</code>\nFoot Score: <b>${score}/100</b>`
+      `📸 Новый анализ Feetrate\n${user.displayName}\nFoot Score: <b>${score}/100</b>`
     ).catch(() => {});
 
     return {

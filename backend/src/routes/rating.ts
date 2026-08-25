@@ -12,7 +12,7 @@ function toImageUrl(imagePath: string): string {
 
 export default async function ratingRoutes(app: FastifyInstance) {
   app.post<{ Body: { analysisId?: string } }>("/api/rating/submit", async (request, reply) => {
-    await resolveUser(request);
+    const user = await resolveUser(request);
     const { analysisId } = request.body ?? {};
     if (!analysisId) {
       return reply.code(400).send({ error: "invalid_request", message: "analysisId обязателен" });
@@ -42,10 +42,7 @@ export default async function ratingRoutes(app: FastifyInstance) {
       },
     });
 
-    const owner = await prisma.user.findUnique({ where: { id: analysis.userId } });
-    notifyAdmin(
-      `📢 Фото опубликовано в общий рейтинг\nПользователь: <code>${owner?.telegramId ?? "?"}</code>`
-    ).catch(() => {});
+    notifyAdmin(`📢 Фото опубликовано в общий рейтинг\n${user.displayName}`).catch(() => {});
 
     return { publicId: publicPhoto.id, status: "published" };
   });
@@ -144,7 +141,7 @@ export default async function ratingRoutes(app: FastifyInstance) {
       });
 
       notifyAdmin(
-        `⭐ Новая оценка в Feetrate\nПользователь: <code>${user.telegramId}</code>\nОценка: <b>${Math.round(score)}/10</b>`
+        `⭐ Новая оценка в Feetrate\n${user.displayName}\nОценка: <b>${Math.round(score)}/10</b>`
       ).catch(() => {});
 
       return { recorded: true };
